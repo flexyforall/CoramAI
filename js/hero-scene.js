@@ -6,7 +6,10 @@
 //   - a warm light lands on the wet floor where the pointer is — a flat,
 //     perspective-squashed pool that grows towards the camera and lights the
 //     reflections; pointing at the racks or ceiling puts it out;
-//   - rows of rack LEDs twinkle; nothing else moves while the pointer rests.
+//   - lights run along the rack LED rows towards the doorway (about 3.6
+//     pulses a second per light, spaced with the perspective), and the
+//     glow in the light cone breathes ±6% on a 2s cycle;
+//   - scrolling away dollies the camera into the corridor.
 //
 // At rest (pointer away, no scroll) the frame matches the Figma crop exactly.
 (function () {
@@ -40,8 +43,6 @@
     'uniform float uLightR;',    // its horizontal radius, CSS px
     'uniform float uLit;',
     '',
-    'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
-    '',
     'void main() {',
     '  vec2 css = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uDpr;',
     '  vec2 uv = (css - uRect.xy) / uRect.zw;',
@@ -63,13 +64,19 @@
     '  vec3 c = texture2D(uTex, uv).rgb;',
     '  float floorM = smoothstep(' + (FLOOR_V - 0.015).toFixed(3) + ', ' + (FLOOR_V + 0.04).toFixed(3) + ', uv.y);',
     '',
-    '  // rack LEDs: small white-ish highlights blink at random',
+    '  // light cone glow breathes: ±6% on a 2s cycle',
+    '  c *= 1.0 + cone * 0.06 * cos(uTime * 3.14159);',
+    '',
+    '  // rack LEDs: lights run along each row towards the doorway. Depth',
+    '  // along a rack wall goes as 1/|u - 0.5|, so the pulses bunch up and',
+    '  // slow down with the perspective, like the reference.',
     '  float l = dot(c, vec3(0.299, 0.587, 0.114));',
     '  float white = 1.0 - smoothstep(0.25, 0.6, (c.r - c.b) / (l + 0.01));',
-    '  vec2 cell = floor(uv * vec2(1884.0, 1085.0) / 4.0);',
-    '  float blink = step(0.92, hash(cell + floor(uTime * 2.4 + hash(cell) * 9.0)));',
     '  float led = smoothstep(0.16, 0.38, l) * white * (1.0 - cone) * (1.0 - floorM);',
-    '  c *= 1.0 - led * blink * 0.65;',
+    '  float z = 0.12 / max(abs(uv.x - 0.5), 0.03);',
+    '  float run = 0.5 + 0.5 * sin((z / 0.0143 - uTime * 3.6) * 6.28318);',
+    '  float pulse = smoothstep(0.45, 1.0, run);',
+    '  c *= mix(1.0, mix(0.22, 1.4, pulse), led);',
     '',
     '  // warm pool of light on the floor under the pointer',
     '  vec2 lp = (css - uLight) / vec2(uLightR, uLightR * 0.42);',
@@ -230,7 +237,8 @@
       var vpY = ry + VP_V * ih;
       var below = ry + ih - H;                         // slack under the frame
       var need = Math.max(0, -sy * 1.15 - below + 2);
-      var zoom = 1 + need / Math.max(1, H - vpY);
+      var dolly = Math.min(1, state.scroll / Math.max(1, H));
+      var zoom = 1 + need / Math.max(1, H - vpY) + dolly * dolly * 0.16;
 
       // floor light: perspective-sized pool, out when aiming above the floor
       var floorY = ry + FLOOR_V * ih + sy;

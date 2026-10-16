@@ -23,6 +23,7 @@
     <div class="hero__light" id="heroLight" aria-hidden="true"></div>
 
     <img class="hero__decoration" src="assets/coram/header-decoration.svg" width="1440" height="40" alt="" aria-hidden="true">
+    <span class="hero__ticks" id="heroTicks" aria-hidden="true"></span>
 
     <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
@@ -41,8 +42,8 @@
         </a>
 
         <div class="nav__actions">
-          <a class="btn btn--ghost" href="#">Log In</a>
-          <a class="btn btn--accent" href="#">Try For Free</a>
+          <a class="btn btn--ghost" href="#" data-magnetic>Log In</a>
+          <a class="btn btn--accent" href="#" data-magnetic>Try For Free</a>
         </div>
       </div>
 
@@ -83,7 +84,7 @@
       <h1 class="hero__title" data-reveal>The Complete Physical <br>Security Platform</h1>
       <p class="hero__lead">An AI-native platform that unifies video, access,<br> and response in one system.</p>
       <div class="hero__buttons">
-        <a class="btn-primary" href="#">
+        <a class="btn-primary" href="#" data-magnetic>
           <span class="btn-primary__icon">
             <img src="assets/coram/icon-hex-mesh.svg" width="20" height="20" alt="">
           </span>
@@ -106,6 +107,7 @@
 
       <div class="field">
         <div class="field__dots" aria-hidden="true"></div>
+        <canvas class="field__glow" id="fieldGlow" aria-hidden="true"></canvas>
         <div class="field__fade field__fade--left" aria-hidden="true"></div>
         <div class="field__fade field__fade--right" aria-hidden="true"></div>
 
@@ -144,9 +146,9 @@
             </span>
           </a></li>
           <li><a class="window" href="#">
-            <span class="logo logo--keep-color"><img class="window__logo" src="assets/coram/logo-dreisbach.svg" width="127.5" height="34" alt="Dreisbach" style="--w:127.5px; --h:34px; --dx:-0.25px"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-dreisbach.svg" data-white="assets/coram/logo-dreisbach-white.svg" width="127.5" height="34" alt="Dreisbach" style="--w:127.5px; --h:34px; --dx:-0.25px"></span>
             <span class="window__plate" aria-hidden="true">
-              <span class="window__plate-logo logo--keep-color"><img class="window__logo" src="assets/coram/logo-dreisbach.svg" width="127.5" height="34" alt="" style="--w:127.5px; --h:34px; --dx:-0.25px"></span>
+              <span class="window__plate-logo"><img class="window__logo" src="assets/coram/logo-dreisbach-white.svg" width="127.5" height="34" alt="" style="--w:127.5px; --h:34px; --dx:-0.25px"></span>
               <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
             </span>
           </a></li>
