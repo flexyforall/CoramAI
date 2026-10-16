@@ -204,8 +204,12 @@
     nav.style.setProperty('--menu-height', (72 + panel.offsetHeight) + 'px');
   }
 
+  var hoverTimer = null;
+
   function openMenu() {
     clearTimeout(closeTimer);
+    clearTimeout(hoverTimer);
+    if (nav.classList.contains('is-open')) return;
     panel.hidden = false;
     setMenuHeight();
     void nav.offsetWidth;
@@ -215,6 +219,8 @@
   }
 
   function closeMenu() {
+    clearTimeout(hoverTimer);
+    if (!nav.classList.contains('is-open')) return;
     nav.classList.remove('is-open');
     document.body.classList.remove('menu-open');
     toggle.setAttribute('aria-expanded', 'false');
@@ -222,6 +228,21 @@
   }
 
   if (nav && toggle && panel) {
+    // Opens while the pointer is anywhere over the bar (or the open panel);
+    // a short grace period on leave stops it snapping shut on the way back.
+    var canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    nav.addEventListener('pointerenter', function (e) {
+      if (e.pointerType !== 'mouse' || !canHover.matches) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(openMenu, 60);
+    });
+    nav.addEventListener('pointerleave', function (e) {
+      if (e.pointerType !== 'mouse' || !canHover.matches) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(closeMenu, 220);
+    });
+
+    // Touch and keyboard still toggle with the button.
     toggle.addEventListener('click', function () {
       nav.classList.contains('is-open') ? closeMenu() : openMenu();
     });
@@ -231,6 +252,9 @@
         closeMenu();
         toggle.focus();
       }
+    });
+    nav.addEventListener('focusout', function (e) {
+      if (!nav.contains(e.relatedTarget)) closeMenu();
     });
     window.addEventListener('resize', function () {
       if (nav.classList.contains('is-open')) setMenuHeight();
@@ -247,11 +271,69 @@
   var fallback = grid.querySelector('[data-default]');
   var hovered = null;
 
-  // Hover / focus: the window takes the dark "case study" state. The
-  // default window (as in the design) gets it back when the pointer leaves.
-  function activate(el) {
-    windows.forEach(function (w) { w.classList.toggle('is-active', w === el); });
+  // Hover / focus: the window takes the dark "case study" state. The plate
+  // sweeps in from the side the pointer entered and out towards the side it
+  // left; the default window (as in the design) gets it back afterwards.
+  var SHOWN = 'inset(0 0 0 0 round 4px)';
+  var HIDDEN = {
+    left: 'inset(0 102% 0 -2% round 4px)',
+    right: 'inset(0 -2% 0 102% round 4px)',
+    top: 'inset(-2% 0 102% 0 round 4px)',
+    bottom: 'inset(102% 0 -2% 0 round 4px)'
+  };
+  var DRIFT = { left: [-1, 0], right: [1, 0], top: [0, -1], bottom: [0, 1] };
+
+  function sideOf(w, x, y) {
+    var r = w.getBoundingClientRect();
+    var dx = (x - (r.left + r.width / 2)) / r.width;
+    var dy = (y - (r.top + r.height / 2)) / r.height;
+    if (x == null || (dx === 0 && dy === 0)) return 'bottom';
+    return Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'top' : 'bottom');
   }
+
+  // keep the plate's white copy in step with the logo currently shown
+  function syncPlate(w) {
+    var logo = w.querySelector('.logo:not(.is-above)');
+    var copy = w.querySelector('.window__plate-logo');
+    if (!logo || !copy) return;
+    copy.className = 'window__plate-logo' + (logo.classList.contains('logo--keep-color') ? ' logo--keep-color' : '');
+    copy.innerHTML = logo.innerHTML;
+    copy.querySelectorAll('img').forEach(function (i) { i.alt = ''; });
+    copy.querySelectorAll('[role]').forEach(function (i) { i.removeAttribute('role'); i.removeAttribute('aria-label'); });
+  }
+
+  function show(w, side) {
+    var plate = w.querySelector('.window__plate');
+    var copy = w.querySelector('.window__plate-logo');
+    var logo = w.querySelector('.logo:not(.is-above)');
+    var d = DRIFT[side];
+    syncPlate(w);
+    plate.style.transition = 'none';
+    copy.style.transition = 'none';
+    plate.style.clipPath = HIDDEN[side];
+    copy.style.translate = (d[0] * -14) + 'px ' + (d[1] * -10) + 'px';
+    void plate.offsetWidth;
+    plate.style.transition = '';
+    copy.style.transition = '';
+    plate.style.clipPath = SHOWN;
+    copy.style.translate = '0px 0px';
+    if (logo) logo.style.translate = (d[0] * 10) + 'px ' + (d[1] * 7) + 'px';
+    w.classList.add('is-active');
+    decode(w);
+  }
+
+  function hide(w, side) {
+    var plate = w.querySelector('.window__plate');
+    var copy = w.querySelector('.window__plate-logo');
+    var logo = w.querySelector('.logo:not(.is-above)');
+    var d = DRIFT[side];
+    plate.style.clipPath = HIDDEN[side];
+    copy.style.translate = (d[0] * 14) + 'px ' + (d[1] * 10) + 'px';
+    if (logo) logo.style.translate = '0px 0px';
+    w.classList.remove('is-active');
+  }
+
+  var active = fallback;
 
   // "[VIEW CASE STUDY]" decodes left to right out of random glyphs.
   var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/_';
@@ -277,27 +359,50 @@
     })(start);
   }
 
-  function engage(w) {
-    if (!grid.classList.contains('is-touched')) grid.classList.add('is-touched');
-    if (w.classList.contains('is-active')) return;
-    activate(w);
-    decode(w);
+  function engage(w, x, y) {
+    grid.classList.add('is-touched');
+    if (active === w) return;
+    if (active) hide(active, x == null ? 'bottom' : sideOf(active, x, y));
+    active = w;
+    show(w, x == null ? 'bottom' : sideOf(w, x, y));
   }
 
   windows.forEach(function (w) {
-    w.addEventListener('mouseenter', function () {
+    w.addEventListener('pointerenter', function (e) {
+      if (e.pointerType !== 'mouse') return;
       hovered = w;
-      // first touch on the default window still plays the full sequence
-      if (w === fallback && !grid.classList.contains('is-touched')) w.classList.remove('is-active');
-      engage(w);
+      // the default window replays the sweep on its first real hover
+      if (w === fallback && active === w && !grid.classList.contains('is-touched')) {
+        hide(w, sideOf(w, e.clientX, e.clientY));
+        active = null;
+      }
+      engage(w, e.clientX, e.clientY);
     });
-    w.addEventListener('mouseleave', function () { hovered = null; });
+    w.addEventListener('pointerleave', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      hovered = null;
+      // leaving the grid entirely: sweep out, the default window comes back
+      var to = e.relatedTarget;
+      if (!to || !grid.contains(to) || !to.closest('.window')) {
+        setTimeout(function () {
+          if (hovered) return;
+          if (active && active !== fallback) {
+            hide(active, sideOf(active, e.clientX, e.clientY));
+            active = fallback;
+            show(fallback, 'bottom');
+          }
+        }, 120);
+      }
+    });
     w.addEventListener('focus', function () { engage(w); });
   });
 
-  grid.addEventListener('mouseleave', function () { activate(fallback); });
   grid.addEventListener('focusout', function (e) {
-    if (!grid.contains(e.relatedTarget)) activate(fallback);
+    if (!grid.contains(e.relatedTarget) && active !== fallback) {
+      if (active) hide(active, 'bottom');
+      active = fallback;
+      show(fallback, 'bottom');
+    }
   });
 
   // Logo shuffle (reference video): every 3.2s, 2–3 random windows pass
@@ -322,7 +427,8 @@
   function shuffle() {
     if (document.hidden || !inView) return;
 
-    var pool = windows.filter(function (w) { return w !== hovered; });
+    // the window showing the case-study state stays put
+    var pool = windows.filter(function (w) { return w !== hovered && w !== active; });
     var count = Math.random() < 0.5 ? 2 : 3;
     var picked = [];
     while (picked.length < count && pool.length) {

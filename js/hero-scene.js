@@ -1,9 +1,12 @@
-// Hero "server room" scene — a WebGL take on a 3D look-around (reference:
-// EDOLUS). The still is re-projected through a depth model of the corridor:
-// everything converges on the lit doorway, so the racks at the frame edges
-// travel further than the far wall when the camera turns. On top: a gently
-// rippling wet floor, a breathing light cone, blinking rack LEDs and a warm
-// light that follows the pointer.
+// Hero "server room" scene — WebGL look-around modelled on the EDOLUS
+// reference recordings:
+//   - the camera turns against the pointer: the whole frame drifts (about
+//     ±2.5% of the width, ±3% of the height), the racks at the edges a
+//     little further than the far doorway, and it eases in with ~0.5s lag;
+//   - a warm light lands on the wet floor where the pointer is — a flat,
+//     perspective-squashed pool that grows towards the camera and lights the
+//     reflections; pointing at the racks or ceiling puts it out;
+//   - rows of rack LEDs twinkle; nothing else moves while the pointer rests.
 //
 // At rest (pointer away, no scroll) the frame matches the Figma crop exactly.
 (function () {
@@ -14,71 +17,64 @@
   var IMG_W = 3456, IMG_H = 1990;
   var CROP_W = 1.3083, CROP_MIN_W = 1883.95, ANCHOR_Y = 269.3;
 
-  var VERT = [
-    'attribute vec2 aPos;',
-    'void main() { gl_Position = vec4(aPos, 0.0, 1.0); }'
-  ].join('\n');
+  // Scene landmarks in image UV (measured on the Figma frame)
+  var VP_V = 0.537;      // vanishing point / doorway (u = 0.5)
+  var FLOOR_V = 0.6;     // where the floor meets the racks
 
-  // Scene landmarks in image UV (measured on the Figma frame):
-  //   vanishing point / doorway (0.5, 0.537)
-  //   light cone: apex above the frame, half-width grows 0.414px per px
-  //   down from y = -248 (hero px) and stops at the floor, v ≈ 0.58
-  //   wet floor from v ≈ 0.62
+  // Camera travel and easing (measured on the reference recording)
+  var TURN_X = 0.025, TURN_Y = 0.03;  // fraction of hero width / height
+  var EASE_LOOK = 0.5, EASE_LIGHT = 0.12, EASE_LIT = 0.3; // seconds
+
+  var VERT = 'attribute vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }';
+
   var FRAG = [
     'precision highp float;',
     'uniform sampler2D uTex;',
     'uniform vec2 uRes;',        // canvas size, device px
     'uniform float uDpr;',
     'uniform vec4 uRect;',       // image rect in CSS px: x, y, w, h
-    'uniform vec2 uLook;',       // camera turn, -1..1
+    'uniform vec2 uShift;',      // camera turn: content offset, CSS px
     'uniform float uZoom;',
     'uniform float uTime;',
-    'uniform vec2 uLight;',      // pointer, CSS px
+    'uniform vec2 uLight;',      // floor light centre, CSS px
+    'uniform float uLightR;',    // its horizontal radius, CSS px
     'uniform float uLit;',
-    'uniform float uLightR;',
     '',
     'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
     '',
     'void main() {',
     '  vec2 css = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uDpr;',
     '  vec2 uv = (css - uRect.xy) / uRect.zw;',
-    '  vec2 vp = vec2(0.5, 0.537);',
+    '  vec2 vp = vec2(0.5, ' + VP_V.toFixed(3) + ');',
     '  uv = vp + (uv - vp) / uZoom;',
     '',
-    '  // light cone mask (triangle from the apex down to the floor)',
+    '  // light cone mask (apex above the frame, base at the floor)',
     '  float coneW = max(0.0, (uv.y * 1084.8 - 25.0) * 0.414 / 1883.95);',
     '  float cone = (1.0 - smoothstep(0.57, 0.61, uv.y))',
     '             * (1.0 - smoothstep(coneW * 0.9, coneW * 1.12 + 0.004, abs(uv.x - 0.5)));',
     '',
-    '  // corridor depth: 0 at the doorway, 1 at the frame edge',
+    '  // camera turn: everything drifts, the near edges slightly more',
     '  vec2 d = uv - vp;',
     '  float t = max(abs(d.x) / 0.5, abs(d.y) / 0.46);',
-    '  float nearness = smoothstep(0.06, 1.0, t) * (1.0 - cone * 0.6);',
-    '  uv -= uLook * nearness * vec2(0.022, 0.012);',
-    '',
-    '  // wet floor: slow horizontal shimmer in the reflections',
-    '  float floorM = smoothstep(0.6, 0.72, uv.y);',
-    '  uv.x += (sin(uv.y * 260.0 + uTime * 1.6) * 0.0009',
-    '         + sin(uv.y * 97.0 - uTime * 1.1) * 0.0006) * floorM;',
-    '',
+    '  float depth = 0.85 + 0.3 * smoothstep(0.05, 1.0, t);',
+    '  uv -= uShift * depth / uRect.zw;',
     '  uv = clamp(uv, vec2(0.0005), vec2(0.9995));',
-    '  vec3 c = texture2D(uTex, uv).rgb;',
     '',
-    '  // breathing light cone',
-    '  c *= 1.0 + cone * 0.07 * sin(uTime * 1.2);',
+    '  vec3 c = texture2D(uTex, uv).rgb;',
+    '  float floorM = smoothstep(' + (FLOOR_V - 0.015).toFixed(3) + ', ' + (FLOOR_V + 0.04).toFixed(3) + ', uv.y);',
     '',
     '  // rack LEDs: small white-ish highlights blink at random',
     '  float l = dot(c, vec3(0.299, 0.587, 0.114));',
     '  float white = 1.0 - smoothstep(0.25, 0.6, (c.r - c.b) / (l + 0.01));',
     '  vec2 cell = floor(uv * vec2(1884.0, 1085.0) / 4.0);',
-    '  float blink = step(0.93, hash(cell + floor(uTime * 2.2 + hash(cell) * 9.0)));',
+    '  float blink = step(0.92, hash(cell + floor(uTime * 2.4 + hash(cell) * 9.0)));',
     '  float led = smoothstep(0.16, 0.38, l) * white * (1.0 - cone) * (1.0 - floorM);',
-    '  c *= 1.0 - led * blink * 0.6;',
+    '  c *= 1.0 - led * blink * 0.65;',
     '',
-    '  // warm light that follows the pointer (lights surfaces, not fog)',
-    '  vec2 lp = css - uLight;',
-    '  float fl = exp(-dot(lp, lp) / (uLightR * uLightR)) * uLit;',
-    '  c = c * (1.0 + fl * 1.1) + vec3(1.0, 0.86, 0.66) * fl * 0.025;',
+    '  // warm pool of light on the floor under the pointer',
+    '  vec2 lp = (css - uLight) / vec2(uLightR, uLightR * 0.42);',
+    '  float fl = exp(-dot(lp, lp) * 1.6) * uLit * floorM;',
+    '  c = c * (1.0 + fl * 3.2) + vec3(1.0, 0.84, 0.6) * fl * 0.07;',
     '',
     '  gl_FragColor = vec4(c, 1.0);',
     '}'
@@ -93,6 +89,23 @@
       return null;
     }
     return s;
+  }
+
+  // Pages opened from disk (file://) can't hand <img> pixels to WebGL; the
+  // same still ships inlined in js/hero-texture.js for that case.
+  function loadInlineTexture(done) {
+    function fromData() {
+      var img = new Image();
+      img.onload = function () { done(img); };
+      img.onerror = function () { done(null); };
+      img.src = window.CORAM_HERO_TEXTURE;
+    }
+    if (window.CORAM_HERO_TEXTURE) return fromData();
+    var s = document.createElement('script');
+    s.src = 'js/hero-texture.js';
+    s.onload = function () { window.CORAM_HERO_TEXTURE ? fromData() : done(null); };
+    s.onerror = function () { done(null); };
+    document.head.appendChild(s);
   }
 
   function init(hero, source, mount) {
@@ -119,7 +132,7 @@
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     var u = {};
-    ['uTex', 'uRes', 'uDpr', 'uRect', 'uLook', 'uZoom', 'uTime', 'uLight', 'uLit', 'uLightR']
+    ['uTex', 'uRes', 'uDpr', 'uRect', 'uShift', 'uZoom', 'uTime', 'uLight', 'uLightR', 'uLit']
       .forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
 
     var tex = gl.createTexture();
@@ -144,7 +157,7 @@
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, source);
           return true;
         }
-        var w = Math.min(IMG_W, Math.round(targetW || IMG_W));
+        var w = Math.min(IMG_W, Math.round(targetW));
         if (Math.abs(w - scaledW) < 2) return true;
         scaler.width = w;
         scaler.height = Math.round(w * IMG_H / IMG_W);
@@ -156,6 +169,7 @@
         scaledW = w;
         return true;
       } catch (e) {
+        scaledW = 0;
         return false;
       }
     }
@@ -164,10 +178,10 @@
     }
 
     var state = {
-      look: { x: 0, y: 0 }, lookT: { x: 0, y: 0 },
-      zoom: 1, zoomT: 1,
+      aim: { x: 0, y: 0 },            // pointer, -0.5..0.5
+      look: { x: 0, y: 0 },
+      light: { x: 0, y: 0 }, lightT: { x: 0, y: 0 },
       lit: 0, litT: 0,
-      light: { x: 0, y: 0 },
       scroll: 0,
       visible: true
     };
@@ -183,48 +197,79 @@
       if (scaler) upload(drawnWidth());
     }
 
-    var t0 = performance.now();
+    function ease(cur, target, dt, tau) {
+      return cur + (target - cur) * (1 - Math.exp(-dt / tau));
+    }
+
+    var t0 = performance.now(), last = t0, raf = 0;
     function frame(now) {
       if (!state.visible) { raf = 0; return; }
       raf = requestAnimationFrame(frame);
       if (!ready) return;
       if (isVideo && source.readyState >= 2) upload();
 
-      var k = 0.07;
-      state.look.x += (state.lookT.x - state.look.x) * k;
-      state.look.y += (state.lookT.y - state.look.y) * k;
-      state.zoom += (state.zoomT - state.zoom) * 0.05;
-      state.lit += (state.litT - state.lit) * 0.06;
+      var dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      state.look.x = ease(state.look.x, state.aim.x, dt, EASE_LOOK);
+      state.look.y = ease(state.look.y, state.aim.y, dt, EASE_LOOK);
+      state.light.x = ease(state.light.x, state.lightT.x, dt, EASE_LIGHT);
+      state.light.y = ease(state.light.y, state.lightT.y, dt, EASE_LIGHT);
+      state.lit = ease(state.lit, state.litT, dt, EASE_LIT);
 
       var iw = Math.max(CROP_W * W, CROP_MIN_W);
       var ih = iw * IMG_H / IMG_W;
-      var sy = Math.min(state.scroll, H) * 0.25;
+      var rx = W / 2 - iw / 2;
+      var ry = ANCHOR_Y - ih / 2 + Math.min(state.scroll, H) * 0.25;
+
+      // content moves against the pointer
+      var sx = -state.look.x * 2 * TURN_X * W;
+      var sy = -state.look.y * 2 * TURN_Y * H;
+
+      // zoom in just enough that the bottom edge never shows (the still has
+      // no slack below the floor); 1.0 at rest
+      var vpY = ry + VP_V * ih;
+      var below = ry + ih - H;                         // slack under the frame
+      var need = Math.max(0, -sy * 1.15 - below + 2);
+      var zoom = 1 + need / Math.max(1, H - vpY);
+
+      // floor light: perspective-sized pool, out when aiming above the floor
+      var floorY = ry + FLOOR_V * ih + sy;
+      var depth = Math.max(0, Math.min(1, (state.light.y - floorY) / Math.max(1, H - floorY)));
+      var onFloor = Math.max(0, Math.min(1, (state.light.y - floorY + 24) / 48));
 
       gl.uniform2f(u.uRes, canvas.width, canvas.height);
       gl.uniform1f(u.uDpr, dpr);
-      gl.uniform4f(u.uRect, W / 2 - iw / 2, ANCHOR_Y - ih / 2 + sy, iw, ih);
-      gl.uniform2f(u.uLook, state.look.x, state.look.y);
-      gl.uniform1f(u.uZoom, state.zoom);
+      gl.uniform4f(u.uRect, rx, ry, iw, ih);
+      gl.uniform2f(u.uShift, sx, sy);
+      gl.uniform1f(u.uZoom, zoom);
       gl.uniform1f(u.uTime, (now - t0) / 1000);
       gl.uniform2f(u.uLight, state.light.x, state.light.y);
-      gl.uniform1f(u.uLit, state.lit);
-      gl.uniform1f(u.uLightR, 260);
+      gl.uniform1f(u.uLightR, 70 + 300 * depth);
+      gl.uniform1f(u.uLit, state.lit * onFloor);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
-    var raf = 0;
-    function start() { if (!raf) raf = requestAnimationFrame(frame); }
+    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
 
-    function onSourceReady() {
-      if (!upload(drawnWidth())) {
-        // e.g. opened from file:// — the browser won't hand the pixels to WebGL
-        setTimeout(function () { hero.dispatchEvent(new CustomEvent('herosceneerror')); }, 0);
-        return;
-      }
+    function show() {
       ready = true;
       resize();
       mount.appendChild(canvas);
       hero.classList.add('hero--gl');
       start();
+    }
+
+    function onSourceReady() {
+      if (upload(drawnWidth())) return show();
+      if (isVideo) return fail();
+      loadInlineTexture(function (img) {
+        if (!img) return fail();
+        source = img;
+        if (upload(drawnWidth())) show();
+        else fail();
+      });
+    }
+    function fail() {
+      setTimeout(function () { hero.dispatchEvent(new CustomEvent('herosceneerror')); }, 0);
     }
 
     if (isVideo) {
@@ -239,7 +284,7 @@
     window.addEventListener('resize', function () { if (ready) resize(); });
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
-        state.visible = entries[0].isIntersecting;
+        state.visible = entries[0].isIntersecting && !document.hidden;
         if (state.visible) start();
       }).observe(hero);
     }
@@ -255,17 +300,17 @@
     });
 
     return {
+      // nx, ny: pointer in -0.5..0.5; x, y: pointer in hero CSS px
       point: function (nx, ny, x, y) {
-        state.lookT.x = nx * 2;
-        state.lookT.y = ny * 2;
-        state.zoomT = 1.035;
-        state.light.x = x;
-        state.light.y = y;
+        state.aim.x = nx;
+        state.aim.y = ny;
+        if (!state.litT) { state.light.x = x; state.light.y = y; }
+        state.lightT.x = x;
+        state.lightT.y = y;
         state.litT = 1;
       },
       leave: function () {
-        state.lookT.x = state.lookT.y = 0;
-        state.zoomT = 1;
+        state.aim.x = state.aim.y = 0;
         state.litT = 0;
       },
       scroll: function (y) { state.scroll = y; }
