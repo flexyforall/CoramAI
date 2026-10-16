@@ -112,7 +112,7 @@
 
   if (scene) {
     hero.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') return;
+      if (!scene || e.pointerType === 'touch') return;
       var r = hero.getBoundingClientRect();
       scene.point(
         (e.clientX - r.left) / r.width - 0.5,
@@ -121,9 +121,16 @@
         e.clientY - r.top
       );
     });
-    hero.addEventListener('pointerleave', scene.leave);
-    window.addEventListener('scroll', function () { scene.scroll(window.scrollY); }, { passive: true });
-  } else if (hero && heroImage && !reduceMotion) {
+    hero.addEventListener('pointerleave', function () { if (scene) scene.leave(); });
+    window.addEventListener('scroll', function () { if (scene) scene.scroll(window.scrollY); }, { passive: true });
+  }
+  if (hero && heroImage && !reduceMotion) {
+    if (scene) hero.addEventListener('herosceneerror', cssParallax, { once: true });
+    else cssParallax();
+  }
+
+  function cssParallax() {
+    scene = null;
     // max travel stays inside the 1.03 overscan (≈28px x, ≈15px y)
     var MAX_X = 16, MAX_Y = 10, ZOOM = 1.03;
     var cur = { x: 0, y: 0, s: 1 };

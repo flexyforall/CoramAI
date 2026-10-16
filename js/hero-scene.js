@@ -215,7 +215,11 @@
     function start() { if (!raf) raf = requestAnimationFrame(frame); }
 
     function onSourceReady() {
-      if (!upload(drawnWidth())) return;
+      if (!upload(drawnWidth())) {
+        // e.g. opened from file:// — the browser won't hand the pixels to WebGL
+        setTimeout(function () { hero.dispatchEvent(new CustomEvent('herosceneerror')); }, 0);
+        return;
+      }
       ready = true;
       resize();
       mount.appendChild(canvas);
