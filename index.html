@@ -3,146 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CEDUR — The roof that makes it home</title>
-  <link rel="stylesheet" href="css/loader.css">
-  <link rel="stylesheet" href="css/site.css">
+  <title>Coram — The Complete Physical Security Platform</title>
+  <meta name="description" content="An AI-native platform that unifies video, access, and response in one system.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/coram.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
-<body class="is-locked">
+<body>
 
-  <!-- ======================== LOADER ======================== -->
-  <div class="loader" id="loader">
-    <div class="loader__stage" id="stage">
+  <!-- Figma: coram.ai-V3 / Concept (31137:795) -->
 
-      <div class="tile" data-card="c53"><img src="assets/loader/image-53.png" alt=""></div>
-      <div class="tile" data-card="c56"><img src="assets/loader/image-56.png" alt=""></div>
-      <div class="tile" data-card="c58"><img src="assets/loader/image-58.png" alt=""></div>
-      <div class="tile" data-card="c52"><img src="assets/loader/image-52.png" alt=""></div>
-      <div class="tile" data-card="c54"><img src="assets/loader/image-54.png" alt=""></div>
-
-      <div class="tile tile--hero" data-card="hero" id="heroTile">
-        <video id="loaderVideo" src="assets/loader/video-cedur.mp4"
-               poster="assets/loader/hero-house.png"
-               muted playsinline preload="auto"></video>
-      </div>
-
-      <div class="loading-mark" id="loadingMark">
-        <video src="assets/loader/loading-kinetic.mp4" muted playsinline autoplay loop
-               onerror="this.remove(); document.getElementById('loadingMark').classList.add('loading-mark--text')"></video>
-        <span class="loading-mark__fallback" aria-hidden="true">LO<b>&#9650;</b>DING</span>
-      </div>
-
+  <!-- ======================== HERO (31137:796) ======================== -->
+  <section class="hero" id="hero">
+    <div class="hero__media" id="heroMedia" aria-hidden="true">
+      <img class="hero__image" id="heroImage" src="assets/coram/hero.png" alt="">
     </div>
-  </div>
+    <div class="hero__light" id="heroLight" aria-hidden="true"></div>
 
-  <!-- ======================== MENU ======================== -->
-  <header class="menu" id="menu">
-    <div class="menu__inner">
-      <a class="menu__logo" href="#" aria-label="CEDUR">
-        <svg viewBox="0 0 50 40" xmlns="http://www.w3.org/2000/svg" role="img">
-          <defs>
-            <mask id="cedur-cut">
-              <rect width="50" height="40" fill="#fff"/>
-              <text x="25" y="19.5" text-anchor="middle"
-                    font-family="'Arial Narrow', 'Helvetica Neue Condensed', Arial, sans-serif"
-                    font-weight="700" font-size="13.5" letter-spacing="0.4" fill="#000">CEDUR</text>
-              <path d="M25 26.5 31.5 34h-13Z" fill="#000"/>
-            </mask>
-          </defs>
-          <path d="M0 0h50v27.5L25 40 0 27.5Z" fill="#fff" mask="url(#cedur-cut)"/>
-        </svg>
-      </a>
-      <nav class="menu__links" aria-label="Main">
-        <a href="#">Who We Are</a>
-        <a href="#">Built For You</a>
-        <a href="#">Inspiration</a>
-        <a href="#">Our Products</a>
-        <a href="#">Resources</a>
-      </nav>
-      <a class="menu__cta" href="#">
-        <span class="menu__cta-icon">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
-        <span>Get Started</span>
-      </a>
-    </div>
-  </header>
+    <img class="hero__decoration" src="assets/coram/header-decoration.svg" width="1440" height="40" alt="" aria-hidden="true">
 
-  <main>
-    <!-- ======================== HERO ======================== -->
-    <section class="hero" id="hero">
-      <video class="hero__video" id="heroVideo" src="assets/loader/video-cedur.mp4"
-             poster="assets/loader/hero-house.png" muted playsinline loop preload="auto"></video>
-      <div class="hero__shade"></div>
+    <div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
 
-      <div class="hero__content">
-        <h1 class="hero__title" id="heroTitle">
-          <span class="reveal-line"><span class="reveal-inner">The roof that</span></span>
-          <span class="reveal-line"><span class="reveal-inner reveal-inner--serif">makes it home.</span></span>
-        </h1>
-        <p class="hero__subtitle" data-fade>
-          CEDUR brings the warm aesthetic of natural cedar shakes and the enduring
-          performance of engineered materials to every roof
-        </p>
-        <a class="hero__button" href="#" data-fade>
-          <span class="hero__button-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <header class="nav" id="nav">
+      <div class="nav__bar">
+        <button class="nav__menu" id="menuToggle" type="button" aria-expanded="false" aria-controls="menuPanel">
+          <span class="nav__menu-icon">
+            <img class="nav__menu-equals" src="assets/coram/icon-equals.svg" width="24" height="24" alt="">
+            <span class="nav__menu-close" aria-hidden="true"><i></i><i></i></span>
           </span>
-          <span>Request Sample</span>
+          <span class="nav__label">Menu</span>
+        </button>
+
+        <a class="nav__logo" href="/" aria-label="Coram">
+          <img src="assets/coram/logo-coram-fill.svg" width="136.641" height="27.9932" alt="Coram">
+        </a>
+
+        <div class="nav__actions">
+          <a class="btn btn--ghost" href="#">Log In</a>
+          <a class="btn btn--accent" href="#">Try For Free</a>
+        </div>
+      </div>
+
+      <!-- Menu panel: not in the Figma frame; styled from its tokens -->
+      <div class="nav__panel" id="menuPanel" hidden>
+        <div class="menu-grid">
+          <div class="menu-card">
+            <p class="menu-label">[Platform]</p>
+            <ul class="menu-links menu-links--large">
+              <li><a href="#">Video Security</a></li>
+              <li><a href="#">Access Control</a></li>
+              <li><a href="#">AI Search &amp; Alerts</a></li>
+              <li><a href="#">Emergency Response</a></li>
+            </ul>
+          </div>
+          <div class="menu-col">
+            <p class="menu-label">[Explore]</p>
+            <ul class="menu-links">
+              <li><a href="#">Industries</a></li>
+              <li><a href="#">Customers</a></li>
+              <li><a href="#">Pricing</a></li>
+              <li><a href="#">Resources</a></li>
+            </ul>
+          </div>
+          <div class="menu-col">
+            <p class="menu-label">[Company]</p>
+            <ul class="menu-links">
+              <li><a href="#">About</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="hero__headline">
+      <h1 class="hero__title" data-reveal>The Complete Physical <br>Security Platform</h1>
+      <p class="hero__lead">An AI-native platform that unifies video, access,<br> and response in one system.</p>
+      <div class="hero__buttons">
+        <a class="btn-primary" href="#">
+          <span class="btn-primary__icon">
+            <img src="assets/coram/icon-hex-mesh.svg" width="20" height="20" alt="">
+          </span>
+          <span class="btn-primary__text">Book a Demo</span>
+          <span class="btn-primary__icon btn-primary__icon--end" aria-hidden="true">
+            <img src="assets/coram/icon-hex-mesh.svg" width="20" height="20" alt="">
+          </span>
         </a>
       </div>
+    </div>
+  </section>
 
-      <div class="hero__footer" data-fade>
-        <span>/to cedur</span>
-        <span class="hero__footer-center">keep scrolling to explore</span>
-        <span>/to cedur</span>
+  <!-- ===================== STATEMENT (31155:802) ===================== -->
+  <section class="statement">
+    <div class="statement__inner">
+      <div class="statement__head">
+        <h2 class="statement__title" data-reveal>Trusted by Fast-growing <br>Companies Around the World</h2>
+        <p class="statement__text">Trusted to process billions of events across thousands of sites.</p>
       </div>
-    </section>
 
-    <!-- ================== CHOOSE THE LOOK ================== -->
-    <section class="choose" id="choose">
-      <h2 class="choose__title" id="chooseTitle">
-        <span class="reveal-line"><span class="reveal-inner">Choose the Look That</span></span>
-        <span class="reveal-line"><span class="reveal-inner reveal-inner--serif">Fits Your Home.</span></span>
-      </h2>
+      <div class="field">
+        <div class="field__dots" aria-hidden="true"></div>
+        <div class="field__fade field__fade--left" aria-hidden="true"></div>
+        <div class="field__fade field__fade--right" aria-hidden="true"></div>
 
-      <div class="choose__grid" id="pointsStage">
-        <div class="choose__col" data-col>
-          <figure><img src="assets/site/chalet-mountain.png" alt=""></figure>
-          <figure><img src="assets/site/cedar-shake-hand.png" alt=""></figure>
-          <figure><img src="assets/site/shingles-roof-wide.png" alt=""></figure>
-          <figure><img src="assets/loader/image-56.png" alt=""></figure>
-        </div>
-
-        <div class="choose__center">
-          <article class="point-card" id="pointCard">
-            <button class="point-card__close" aria-label="Close">
-              <svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="#020202" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </button>
-            <div class="point-card__body">
-              <div class="point-swap" id="pointSwap">
-                <p class="point-card__num" id="pointNum">01</p>
-                <h3 class="point-card__title" id="pointTitle">Made to Weather the Storm</h3>
-                <p class="point-card__text" id="pointText">
-                  Exceptional impact resistance provides dependable protection against
-                  hail and severe weather, season after season.
-                </p>
-              </div>
-            </div>
-            <div class="point-card__rows" id="pointRows"></div>
-          </article>
-        </div>
-
-        <div class="choose__col" data-col>
-          <figure><img src="assets/site/cedar-roof-pool.png" alt=""></figure>
-          <figure><img src="assets/site/storm-cabin.png" alt=""></figure>
-          <figure><img src="assets/site/snowy-roof-dusk.png" alt=""></figure>
-          <figure><img src="assets/loader/image-52.png" alt=""></figure>
-        </div>
+        <ul class="field__grid" id="logoGrid">
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-lakepointe.png" alt="Lakepointe Church" style="--w:156.923px; --h:40px; --dx:0.46px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-1800gotjunk.png" alt="1-800-GOT-JUNK?" style="--w:151.529px; --h:28px; --dx:-0.24px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window is-active" href="#" data-default>
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><span class="window__mask" role="img" aria-label="SnoTemp"></span></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+            <span class="window__cursor" aria-hidden="true">
+              <span class="window__cursor-shape">
+                <img src="assets/coram/cursor-pointing.svg" width="16.7461" height="17.8588" alt="">
+              </span>
+            </span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><span class="window__logo window__logo--crop" style="--w:107.739px; --h:42px; --dx:-0.13px"><img src="assets/coram/logo-daffodil.png" alt="Daffodil Storage"></span></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo logo--keep-color"><img class="window__logo" src="assets/coram/logo-dreisbach.svg" width="127.5" height="34" alt="Dreisbach" style="--w:127.5px; --h:34px; --dx:-0.25px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-hospital.png" alt="Bacon County Hospital" style="--w:78.4px; --h:42px; --dx:0.2px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-usop.png" alt="USOP" style="--w:106.614px; --h:40px; --dx:0.31px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo window__logo--fill" src="assets/coram/logo-pcc.png" alt="PCC" style="--w:61.333px; --h:40px; --dx:-0.33px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-horizon.png" alt="Horizon Roofing" style="--w:151.111px; --h:40px; --dx:-0.44px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+          <li><a class="window" href="#">
+            <span class="window__bg" aria-hidden="true"></span><span class="window__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="window__scan" aria-hidden="true"></span>
+            <span class="logo"><img class="window__logo" src="assets/coram/logo-cafe-valley.png" alt="Café Valley Bakery" style="--w:67.328px; --h:44px; --dx:-0.34px"></span>
+            <span class="window__cta"><span class="window__cta-text">[VIEW CASE STUDY]</span><img src="assets/coram/icon-arrow-right.svg" width="20" height="20" alt=""></span>
+          </a></li>
+        </ul>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
-  <script src="js/loader.js"></script>
-  <script src="js/site.js"></script>
+  <!-- ===================== NEXT SECTION (31161:1091) ===================== -->
+  <section class="deep" aria-hidden="true"></section>
+
+  <script src="js/hero-scene.js"></script>
+  <script src="js/coram.js"></script>
 </body>
 </html>

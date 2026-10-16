@@ -1,0 +1,24 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon-hex-mesh">
+<path id="Vector" d="M10 2.4L16.582 6.2V13.8L10 17.6L3.418 13.8V6.2L10 2.4Z" stroke-width="1.2" stroke-linejoin="round" stroke="white" stroke-opacity="0.45"/>
+<g id="Vector_2">
+<path d="M10 10V2.4Z" fill="black"/>
+<path d="M10 10V2.4" stroke-width="1.5" stroke-linecap="round" stroke="white"/>
+</g>
+<g id="Vector_3">
+<path d="M10 10L16.582 13.8Z" fill="black"/>
+<path d="M10 10L16.582 13.8" stroke-width="1.5" stroke-linecap="round" stroke="white"/>
+</g>
+<g id="Vector_4">
+<path d="M10 10L3.418 13.8Z" fill="black"/>
+<path d="M10 10L3.418 13.8" stroke-width="1.5" stroke-linecap="round" stroke="white"/>
+</g>
+<path id="Vector_5" d="M10 4.1C10.9389 4.1 11.7 3.33888 11.7 2.4C11.7 1.46112 10.9389 0.7 10 0.7C9.06112 0.7 8.3 1.46112 8.3 2.4C8.3 3.33888 9.06112 4.1 10 4.1Z" fill="white"/>
+<path id="Vector_6" d="M16.582 7.3C17.1895 7.3 17.682 6.80751 17.682 6.2C17.682 5.59249 17.1895 5.1 16.582 5.1C15.9745 5.1 15.482 5.59249 15.482 6.2C15.482 6.80751 15.9745 7.3 16.582 7.3Z" fill="white" fill-opacity="0.6"/>
+<path id="Vector_7" d="M16.582 15.5C17.5209 15.5 18.282 14.7389 18.282 13.8C18.282 12.8611 17.5209 12.1 16.582 12.1C15.6431 12.1 14.882 12.8611 14.882 13.8C14.882 14.7389 15.6431 15.5 16.582 15.5Z" fill="white"/>
+<path id="Vector_8" d="M10 18.7C10.6075 18.7 11.1 18.2075 11.1 17.6C11.1 16.9925 10.6075 16.5 10 16.5C9.39249 16.5 8.9 16.9925 8.9 17.6C8.9 18.2075 9.39249 18.7 10 18.7Z" fill="white" fill-opacity="0.6"/>
+<path id="Vector_9" d="M3.418 15.5C4.35688 15.5 5.118 14.7389 5.118 13.8C5.118 12.8611 4.35688 12.1 3.418 12.1C2.47912 12.1 1.718 12.8611 1.718 13.8C1.718 14.7389 2.47912 15.5 3.418 15.5Z" fill="white"/>
+<path id="Vector_10" d="M3.418 7.3C4.02551 7.3 4.518 6.80751 4.518 6.2C4.518 5.59249 4.02551 5.1 3.418 5.1C2.81049 5.1 2.318 5.59249 2.318 6.2C2.318 6.80751 2.81049 7.3 3.418 7.3Z" fill="white" fill-opacity="0.6"/>
+<path id="Vector_11" d="M12.1213 9.29289L10.7071 7.87868C10.3166 7.48816 9.68342 7.48816 9.29289 7.87868L7.87868 9.29289C7.48816 9.68342 7.48816 10.3166 7.87868 10.7071L9.29289 12.1213C9.68342 12.5118 10.3166 12.5118 10.7071 12.1213L12.1213 10.7071C12.5118 10.3166 12.5118 9.68342 12.1213 9.29289Z" fill="white"/>
+</g>
+</svg>
